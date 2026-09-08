@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Protest+Riot&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+
+  <title>para sa pangit na bitch</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 62.5%; }
+
+    body {
+      font-family: 'Protest Riot', 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      background: #1a0010;
+    }
+
+    /* ── ANIMATED BACKGROUND ── */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-canvas::before {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: conic-gradient(
+        from 0deg,
+        #ff006680, #ff6eb400, #ff006680, #c2005580, #ff006680
+      );
+      animation: spinGrad 10s linear infinite;
+      border-radius: 50%;
+    }
+
+    @keyframes spinGrad { to { transform: rotate(360deg); } }
+
+    .floaty {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0;
+      animation: floatUp 6s ease-in infinite;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) scale(0.8) rotate(-10deg); opacity: 0; }
+      10%  { opacity: 0.8; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-10vh) scale(1.2) rotate(15deg); opacity: 0; }
+    }
+
+    .star {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 2s ease-in-out infinite alternate;
+    }
+    @keyframes twinkle {
+      from { opacity: 0.1; transform: scale(1); }
+      to   { opacity: 1;   transform: scale(1.6); }
+    }
+
+    .ring {
+      position: absolute;
+      border: 2px solid rgba(255, 100, 150, 0.3);
+      border-radius: 50%;
+      animation: expandRing 4s ease-out infinite;
+    }
+    @keyframes expandRing {
+      0%   { transform: scale(0); opacity: 0.8; }
+      100% { transform: scale(6); opacity: 0; }
+    }
+
+    /* ── CARD ── */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 192, 203, 0.18);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1.5px solid rgba(255, 180, 200, 0.4);
+      border-radius: 24px;
+      padding: 36px 40px;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(255, 0, 80, 0.3), 0 8px 32px rgba(0,0,0,0.4);
+      min-width: 320px;
+    }
+
+    .card h2 {
+      color: #fff;
+      font-size: 1.5rem;
+      margin-bottom: 18px;
+      text-shadow: 0 0 12px #ff6090;
+    }
+
+    #nameInput {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 8px;
+      background: rgba(255,255,255,0.85);
+      color: #333;
+    }
+
+    #startBtn {
+      margin-top: 16px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff2d6b, #ff6090);
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 18px rgba(255, 0, 80, 0.4);
+      font-family: 'Protest Riot', sans-serif;
+    }
+    #startBtn:hover { transform: scale(1.06); box-shadow: 0 6px 24px rgba(255,0,80,0.5); }
+
+    .error { color: #ffb3c6; margin-top: 10px; font-size: 0.9rem; }
+
+    #content { display: none; }
+
+    /* ── Cat image ── */
+    .cat-img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .title {
+      font-size: 2.4rem;
+      color: #f53699;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    #yesButton {
+      font-size: 20px;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+      transition: transform 0.2s, font-size 0.3s;
+      padding: 14px 28px;
+      border: none;
+      cursor: pointer;
+      margin: 10px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #4CAF50, #81e87d);
+      color: white;
+      font-family: 'Protest Riot', sans-serif;
+    }
+    #yesButton:hover { transform: scale(1.08); }
+
+    #noButton {
+      font-size: 20px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(255, 100, 150, 0.2);
+      transition: transform 0.2s, font-size 0.3s, opacity 0.3s;
+      padding: 14px 28px;
+      border: 1px solid rgba(255, 180, 200, 0.3);
+      cursor: pointer;
+      margin: 10px;
+      font-weight: bold;
+      background: rgba(255, 150, 180, 0.15);
+      backdrop-filter: blur(4px);
+      color: rgba(255, 220, 230, 0.6);
+      opacity: 0.4;
+      font-family: 'Protest Riot', sans-serif;
+    }
+    #noButton:hover {
+      opacity: 0.7;
+      background: rgba(255, 150, 180, 0.25);
+    }
+    #noButton.running {
+      position: fixed;
+      z-index: 999;
+      font-size: 16px !important;
+      padding: 12px 22px;
+      opacity: 1 !important;
+      color: #fff !important;
+      background: rgba(180, 60, 100, 0.75) !important;
+      border: 1.5px solid rgba(255, 150, 180, 0.7) !important;
+      box-shadow: 0 0 18px rgba(255, 80, 130, 0.6), 0 4px 14px rgba(0,0,0,0.4) !important;
+      backdrop-filter: blur(8px);
+      transition: left 0.15s ease, top 0.15s ease, transform 0.2s;
+    }
+
+    #message {
+      margin-top: 18px;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-shadow: 0 0 12px #ff6090;
+      min-height: 28px;
+    }
+
+    /* ── 3D HEART OVERLAY ── */
+    #heartOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+      background: #000;
+    }
+    #heartOverlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #c { display: block; width: 100vw; height: 100vh; cursor: grab; }
+    #c.dragging { cursor: grabbing; }
+
+    .title2 {
+      position: absolute;
+      top: 6%; width: 100%;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      color: #ffffff;
+      text-shadow:
+        0 0 8px #fff,
+        0 0 20px #7df9ff,
+        0 0 50px #00bfff,
+        0 0 100px #0066ff;
+      opacity: 0; transition: opacity 1.2s ease;
+      pointer-events: none; z-index: 10;
+    }
+    .title2.visible {
+      opacity: 1;
+      animation: titlePulse 3s ease-in-out infinite alternate;
+    }
+    @keyframes titlePulse {
+      from { text-shadow: 0 0 8px #fff, 0 0 20px #7df9ff, 0 0 50px #00bfff, 0 0 80px #0066ff; }
+      to   { text-shadow: 0 0 12px #fff, 0 0 40px #7df9ff, 0 0 80px #00bfff, 0 0 140px #0066ff; }
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 6%; width: 100%;
+      text-align: center; font-size: 13px;
+      letter-spacing: 2px;
+      color: rgba(125, 249, 255, 0.6);
+      text-shadow: 0 0 8px rgba(0,191,255,0.5);
+      opacity: 0; transition: opacity 1s ease;
+      pointer-events: none; z-index: 10;
+    }
+    .hint.visible { opacity: 1; animation: blink 3s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:0.3} 50%{opacity:0.9} }
+
+    .name-display {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 88px;
+      font-weight: 900;
+      letter-spacing: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #7df9ff 40%, #00bfff 75%, #0044cc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 6px #7df9ff) drop-shadow(0 0 20px #00bfff) drop-shadow(0 0 50px #0044cc);
+      opacity: 0; pointer-events: none; z-index: 20;
+      transition: opacity 0.8s ease;
+      white-space: nowrap;
+    }
+    .name-display.visible {
+      opacity: 1;
+      animation: nameAnim 2s ease-in-out infinite alternate;
+    }
+    @keyframes nameAnim {
+      from { filter: drop-shadow(0 0 6px #7df9ff) drop-shadow(0 0 20px #00bfff) drop-shadow(0 0 40px #0044cc); }
+      to   { filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 40px #7df9ff) drop-shadow(0 0 80px #00bfff) drop-shadow(0 0 120px #0033aa); }
+    }
+
+    .stars {
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 30%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 75%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 10%, rgba(255,255,255,0.6) 0%, transparent 100%);
+      pointer-events: none; z-index: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND -->
+<div class="bg-canvas" id="bgCanvas"></div>
+
+<!-- CARD -->
+<div class="card">
+  <!-- NAME SCREEN -->
+  <div id="nameScreen">
+    <h2>💌 Enter Your Name</h2>
+    <input type="text" id="nameInput" placeholder="Type your name…">
+    <br>
+    <button id="startBtn">Start ✨</button>
+    <p id="errorMsg" class="error"></p>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="content">
+    <img id="catImg" class="cat-img" src="cat-0.jpg" alt="Cat" />
+    <p class="title" id="titleEl">Do you love me? 🥺</p>
+
+    <div class="buttons" id="buttonsEl">
+      <button id="yesButton">Yes 💙</button>
+      <button id="noButton">No</button>
+    </div>
+
+    <p id="message"></p>
+  </div>
+</div>
+
+<!-- 3D HEART OVERLAY -->
+<div id="heartOverlay">
+  <div class="stars"></div>
+  <div class="title2" id="title">✦ I LAB YO ✦</div>
+  <div class="hint" id="hint">DRAG TO ROTATE &nbsp;·&nbsp; CLICK TO REVEAL</div>
+  <div class="name-display" id="nameDisplay">Cessa💙</div>
+  <canvas id="c"></canvas>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   BACKGROUND BUILDER
+══════════════════════════════════════════ */
+const bgCanvas = document.getElementById('bgCanvas');
+const emojis = ['💗','💓','💞','✨','💫','🌸','💝','🥰'];
+
+for (let i = 0; i < 18; i++) {
+  const el = document.createElement('div');
+  el.classList.add('floaty');
+  el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  el.style.left = Math.random() * 100 + 'vw';
+  el.style.animationDelay = (Math.random() * 6) + 's';
+  el.style.animationDuration = (5 + Math.random() * 5) + 's';
+  el.style.fontSize = (1.2 + Math.random() * 1.6) + 'rem';
+  bgCanvas.appendChild(el);
+}
+
+for (let i = 0; i < 60; i++) {
+  const s = document.createElement('div');
+  s.classList.add('star');
+  s.style.left = Math.random() * 100 + 'vw';
+  s.style.top  = Math.random() * 100 + 'vh';
+  s.style.animationDelay = (Math.random() * 2) + 's';
+  s.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+  bgCanvas.appendChild(s);
+}
+
+for (let i = 0; i < 4; i++) {
+  const r = document.createElement('div');
+  r.classList.add('ring');
+  r.style.width = r.style.height = '80px';
+  r.style.left  = (20 + i * 20) + 'vw';
+  r.style.top   = (20 + i * 15) + 'vh';
+  r.style.animationDelay = (i * 1.2) + 's';
+  bgCanvas.appendChild(r);
+}
+
+/* ══════════════════════════════════════════
+   CAT IMAGES ARRAY
+══════════════════════════════════════════ */
+const catImages = [
+  "cat-0.jpg",
+  "cat-1.jpg",
+  "cat-2.jpg",
+  "cat-4.jpg"
+];
+
+/* ══════════════════════════════════════════
+   NAME VALIDATION (FIXED FOR CESSA)
+══════════════════════════════════════════ */
+function validateName() {
+  const nameInput = document.getElementById('nameInput').value;
+  // Ini-trim ang spaces at pina-paliit ang letters
+  const cleanName = nameInput.trim().toLowerCase();
+  
+  if (cleanName === 'cessa') {
+    document.getElementById('nameScreen').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    document.getElementById('errorMsg').innerText = '';
+  } else {
+    document.getElementById('errorMsg').innerText = 'Not for you BITCH!';
+  }
+}
+
+document.getElementById('startBtn').addEventListener('click', validateName);
+
+// Pwede ring mag-Enter sa Keyboard
+document.getElementById('nameInput').addEventListener('keypress', function (e) {
+  if (e.key === 'Enter') {
+    validateName();
+  }
+});
+
+/* ══════════════════════════════════════════
+   NO / YES BUTTON LOGIC
+══════════════════════════════════════════ */
+const noButton   = document.getElementById('noButton');
+const yesButton  = document.getElementById('yesButton');
+const titleEl    = document.getElementById('titleEl');
+const message    = document.getElementById('message');
+const catImg     = document.getElementById('catImg');
+
+let noClickCount = 0;
+
+function updateCatImage() {
+  if (catImages.length === 0) return;
+  const idx = Math.min(noClickCount, catImages.length - 1);
+  catImg.src = catImages[idx];
+}
+
+noButton.addEventListener('click', function () {
+  noClickCount++;
+  updateCatImage();
+
+  if (noClickCount === 1) {
+    yesButton.style.fontSize = '30px';
+    titleEl.textContent = 'Please say Yes! 🥺';
+
+  } else if (noClickCount === 2) {
+    noButton.style.fontSize = '10px';
+    yesButton.style.fontSize = '40px';
+    titleEl.textContent = "ARE YOU SUREEE??🥺";
+
+  } else if (noClickCount === 3) {
+    yesButton.style.fontSize = '60px';
+    noButton.style.fontSize = '7px';
+    titleEl.textContent = 'BALA KA DYAN 😒';
+
+  } else if (noClickCount >= 4 && noClickCount < 15) {
+    noButton.classList.add('running');
+    titleEl.textContent = 'BALA KA DYAN 😒';
+
+    const btnW = 120, btnH = 52;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+
+    const rangeX = Math.min(160, window.innerWidth  * 0.12);
+    const rangeY = Math.min(120, window.innerHeight * 0.12);
+
+    const x = Math.round(cx + (Math.random() * 2 - 1) * rangeX - btnW / 2);
+    const y = Math.round(cy + (Math.random() * 2 - 1) * rangeY - btnH / 2);
+
+    noButton.style.left = x + 'px';
+    noButton.style.top  = y + 'px';
+
+  } else if (noClickCount >= 15) {
+    message.innerText = 'Oh No! You broke the button :c';
+    noButton.disabled = true;
+    noButton.style.opacity = '0.3';
+    titleEl.textContent = 'SINIRA PA TALAGA MAG "YES" KA NA KASI!!';
+  }
+});
+
+yesButton.addEventListener('click', function () {
+  titleEl.textContent = 'Yay! I knew it! ❤️';
+  message.innerText = 'CRUSH NA CRUSH NYA KO OMGGG!! 🥰';
+
+  for (let i = 0; i < 15; i++) {
+    const el = document.createElement('div');
+    el.classList.add('floaty');
+    el.textContent = ['💗','💓','💞','😍','🥰','💝','🐱'][Math.floor(Math.random() * 7)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.animationDelay = (Math.random() * 1.5) + 's';
+    el.style.animationDuration = (3 + Math.random() * 3) + 's';
+    el.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+    bgCanvas.appendChild(el);
+    setTimeout(() => el.remove(), 6000);
+  }
+
+  setTimeout(() => {
+    document.getElementById('heartOverlay').classList.add('active');
+    initHeart();
+  }, 800);
+});
+
+/* ══════════════════════════════════════════
+   3D HEART
+══════════════════════════════════════════ */
+let heartStarted = false;
+
+function initHeart() {
+  if (heartStarted) return;
+  heartStarted = true;
+
+  const canvas   = document.getElementById('c');
+  const ctx      = canvas.getContext('2d');
+  const titleEl2 = document.getElementById('title');
+  const hintEl   = document.getElementById('hint');
+  const nameEl   = document.getElementById('nameDisplay');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function heartX(t) { return 16 * Math.pow(Math.sin(t), 3); }
+  function heartY(t) { return -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)); }
+
+  function isInsideHeart(px, py) {
+    const STEPS = 80;
+    let winding = 0;
+    for (let i = 0; i < STEPS; i++) {
+      const t0 = (i / STEPS) * Math.PI * 2;
+      const t1 = ((i + 1) / STEPS) * Math.PI * 2;
+      const x0 = heartX(t0) - px, y0 = heartY(t0) - py;
+      const x1 = heartX(t1) - px, y1 = heartY(t1) - py;
+      if (y0 <= 0) { if (y1 > 0  && (x0*y1 - x1*y0) > 0) winding++; }
+      else          { if (y1 <= 0 && (x0*y1 - x1*y0) < 0) winding--; }
+    }
+    return winding !== 0;
+  }
+
+  function rotateXAxis(y, z, a) { return [y*Math.cos(a) - z*Math.sin(a), y*Math.sin(a) + z*Math.cos(a)]; }
+  function rotateYAxis(x, z, a) { return [x*Math.cos(a) + z*Math.sin(a), -x*Math.sin(a) + z*Math.cos(a)]; }
+
+  const NUM = 2200, FOV = 600;
+  let particles = [];
+  let rotX = 0.3, rotY = 0, targetRotX = 0.3, targetRotY = 0;
+  let autoRotate = true;
+  let tick = 0;
+  let state = 'assembling';
+  let progress = 0;
+
+  const ss = () => Math.min(canvas.width, canvas.height) * 0.031;
+
+  function project(x3, y3, z3) {
+    let [rx, rz1] = rotateYAxis(x3, z3, rotY);
+    let [ry, rz2] = rotateXAxis(y3, rz1, rotX);
+    const s = FOV / (FOV + rz2 + 30);
+    return { sx: canvas.width/2 + rx*s, sy: canvas.height/2 + ry*s, scale: s, z: rz2 };
+  }
+
+  function buildHeartTargets() {
+    const t = [];
+    while (t.length < NUM) {
+      const dx = Math.random() * 36 - 18;
+      const dy = Math.random() * 32 - 17;
+      if (isInsideHeart(dx, dy)) t.push({ x: dx, y: dy, z: (Math.random() * 2 - 1) * 2.5 });
+    }
+    return t;
+  }
+
+  function initParticles() {
+    const targets = buildHeartTargets();
+    particles = [];
+    for (let i = 0; i < NUM; i++) {
+      const colorType = Math.random();
+      particles.push({
+        hx: targets[i].x, hy: targets[i].y, hz: targets[i].z,
+        ax: (Math.random() - 0.5) * 40,
+        ay: (Math.random() - 0.5) * 40,
+        az: (Math.random() - 0.5) * 10,
+        sx: 0, sy: 0, sz: 0,
+        size:  Math.random() * 2.2 + 0.8,
+        alpha: Math.random() * 0.35 + 0.65,
+        pulse: Math.random() * Math.PI * 2,
+        colorType,
+      });
+    }
+  }
+
+  initParticles();
+
+  let dragging = false, lastMX = 0, lastMY = 0, dragMoved = false;
+
+  canvas.addEventListener('mousedown', e => {
+    dragging = true; dragMoved = false;
+    lastMX = e.clientX; lastMY = e.clientY;
+    autoRotate = false; canvas.classList.add('dragging');
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
+    if (Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+    targetRotY += dx * 0.007; targetRotX += dy * 0.007;
+    targetRotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetRotX));
+    lastMX = e.clientX; lastMY = e.clientY;
+  });
+  window.addEventListener('mouseup', () => {
+    if (dragging && !dragMoved) handleClick();
+    dragging = false; canvas.classList.remove('dragging');
+  });
+  canvas.addEventListener('touchstart', e => {
+    dragging = true; dragMoved = false;
+    lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY;
+    autoRotate = false;
+  }, { passive: true });
+  canvas.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - lastMX, dy = e.touches[0].clientY - lastMY;
+    if (Math.abs(dx) + Math.abs(dy) > 3) dragMoved = true;
+    targetRotY += dx * 0.007; targetRotX += dy * 0.007;
+    targetRotX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetRotX));
+    lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY;
+  }, { passive: true });
+  canvas.addEventListener('touchend', () => {
+    if (!dragMoved) handleClick();
+    dragging = false;
+  });
+
+  function handleClick() {
+    if (state === 'heart')      scatter();
+    else if (state === 'scattered') reassemble();
+  }
+
+  function scatter() {
+    if (state !== 'heart') return;
+    for (const p of particles) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi   = Math.acos(2 * Math.random() - 1);
+      const r     = 35 + Math.random() * 25;
+      p.sx = r * Math.sin(phi) * Math.cos(theta);
+      p.sy = r * Math.sin(phi) * Math.sin(theta);
+      p.sz = r * Math.cos(phi);
+      p.ax = p.hx; p.ay = p.hy; p.az = p.hz;
+    }
+    state = 'scattering'; progress = 0;
+    titleEl2.classList.remove('visible');
+    hintEl.classList.remove('visible');
+  }
+
+  function reassemble() {
+    if (state !== 'scattered') return;
+    state = 'assembling'; progress = 0;
+    nameEl.classList.remove('visible');
+  }
+
+  function getParticleColor(colorType, depthT) {
+    let r, g, b;
+    if (colorType < 0.25) {
+      r = 255; g = 255; b = 255;
+    } else if (colorType < 0.55) {
+      r = Math.round(100 + depthT * 100);
+      g = Math.round(210 + depthT * 45);
+      b = 255;
+    } else if (colorType < 0.80) {
+      r = Math.round(40  + depthT * 80);
+      g = Math.round(120 + depthT * 80);
+      b = 255;
+    } else {
+      r = Math.round(20 + depthT * 60);
+      g = Math.round(60 + depthT * 100);
+      b = 255;
+    }
+    return { r, g, b };
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    tick++;
+
+    rotX += (targetRotX - rotX) * 0.08;
+    rotY += (targetRotY - rotY) * 0.08;
+    if (autoRotate) targetRotY += 0.004;
+
+    ctx.fillStyle = 'rgba(0,2,8,0.28)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (state === 'assembling') {
+      progress = Math.min(1, progress + 0.018);
+      if (progress >= 1) {
+        state = 'heart';
+        titleEl2.classList.add('visible');
+        hintEl.classList.add('visible');
+      }
+    } else if (state === 'scattering') {
+      progress = Math.min(1, progress + 0.025);
+      if (progress >= 1) {
+        state = 'scattered';
+        nameEl.classList.add('visible');
+      }
+    }
+
+    const scale3d  = ss();
+    const projected = [];
+
+    for (let i = 0; i < NUM; i++) {
+      const p = particles[i];
+      let tx, ty, tz;
+
+      if (state === 'assembling' || state === 'heart') {
+        tx = p.hx; ty = p.hy; tz = p.hz;
+      } else {
+        tx = p.sx; ty = p.sy; tz = p.sz;
+      }
+
+      const speed = (state === 'assembling' || state === 'scattering') ? 0.05 : 0.02;
+      p.ax += (tx - p.ax) * speed;
+      p.ay += (ty - p.ay) * speed;
+      p.az += (tz - p.az) * speed;
+
+      let fx = 0, fy = 0;
+      if (state === 'heart') {
+        fx = Math.sin(tick * 0.02 + p.pulse) * 0.15;
+        fy = Math.cos(tick * 0.02 + p.pulse) * 0.15;
+      } else if (state === 'scattered') {
+        fx = Math.sin(tick * 0.015 + p.pulse) * 0.3;
+        fy = Math.cos(tick * 0.018 + p.pulse) * 0.3;
+      }
+
+      const proj = project((p.ax + fx) * scale3d, (p.ay + fy) * scale3d, p.az * scale3d);
+      let a = 1;
+      if (state === 'assembling') a = Math.min(1, progress * 1.8);
+      projected.push({ sx: proj.sx, sy: proj.sy, sc: proj.scale, pz: proj.z, p, a });
+    }
+
+    projected.sort((a, b) => a.pz - b.pz);
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (const { sx, sy, sc, pz, p, a } of projected) {
+      if (sx < -120 || sx > canvas.width + 120 || sy < -120 || sy > canvas.height + 120) continue;
+
+      const sparkle = Math.sin(tick * 0.07 + p.pulse) * 0.25 + 0.75;
+      const alpha   = p.alpha * sparkle * a;
+      const size    = p.size * Math.max(sc, 0.22) * (0.8 + sparkle * 0.35);
+      const depthT  = Math.max(0, Math.min(1, (pz + 30) / 60));
+
+      const { r, g, b } = getParticleColor(p.colorType, depthT);
+
+      const grd = ctx.createRadialGradient(sx, sy, 0, sx, sy, size * 4);
+      grd.addColorStop(0,   `rgba(${r},${g},${b},${alpha * 0.9})`);
+      grd.addColorStop(0.3, `rgba(${r},${g},${b},${alpha * 0.5})`);
+      grd.addColorStop(0.7, `rgba(${r},${g},${b},${alpha * 0.15})`);
+      grd.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = grd;
+      ctx.beginPath(); ctx.arc(sx, sy, size * 4, 0, Math.PI * 2); ctx.fill();
+
+      const grd2 = ctx.createRadialGradient(sx, sy, 0, sx, sy, size * 1.8);
+      grd2.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+      grd2.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = grd2;
+      ctx.beginPath(); ctx.arc(sx, sy, size * 1.8, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = `rgba(255,255,255,${alpha * 0.95})`;
+      ctx.beginPath(); ctx.arc(sx, sy, size * 0.4, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  animate();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const img = document.getElementById('catImg');
+  if (img && typeof catImages !== "undefined" && catImages.length > 0) {
+    img.src = catImages[0];
+  }
+});
+</script>
+</body>
+</html>

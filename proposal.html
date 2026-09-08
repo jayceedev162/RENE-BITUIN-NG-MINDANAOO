@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCTV Business Ops & Profitability System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { 950:'#0a1526', 900:'#0d1b30', 800:'#12233c', 700:'#1a3050', 600:'#2b4468', 500:'#3d5170', 300:'#9db0c9' },
+          amber: { 400:'#e8b866', 500:'#e0a542', 600:'#c98d2b' },
+          ok: { 500:'#2e9e6d', 100:'#e3f5ec' },
+          bad: { 500:'#d1495b', 100:'#fbe6e9' },
+        },
+        fontFamily: {
+          sans: ['Inter','sans-serif'],
+          display: ['"Space Grotesk"','sans-serif'],
+          mono: ['"Roboto Mono"','monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body{ font-family:'Inter',sans-serif; }
+  .font-display{ font-family:'Space Grotesk',sans-serif; }
+  .font-mono{ font-family:'Roboto Mono',monospace; }
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#1a3050; border-radius:4px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  .nav-btn.active{ background:#12233c; color:#fff; border-left-color:#e0a542; }
+  .nav-btn.active .nav-dot{ background:#e0a542; }
+  input[type=range]{ accent-color:#e0a542; }
+  input[type=checkbox]{ accent-color:#e0a542; }
+</style>
+</head>
+<body class="bg-slate-100 text-navy-900">
+
+<div class="flex min-h-screen">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="hidden lg:flex lg:flex-col w-72 shrink-0 bg-navy-950 text-white fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-7 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full border-2 border-amber-500 flex items-center justify-center shrink-0">
+          <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+        </div>
+        <div class="font-display font-semibold text-[15px] leading-tight">
+          CCTV Business Ops <br><span class="text-amber-500">&amp; Profitability System</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="flex-1 py-4">
+      <button onclick="showTab('dashboard', this)" class="nav-btn active w-full flex items-center gap-3 text-left px-6 py-3.5 border-l-2 border-transparent text-slate-300 hover:bg-navy-900 hover:text-white transition-colors">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+        <span class="text-sm font-medium">Dashboard Overview</span>
+      </button>
+      <button onclick="showTab('product', this)" class="nav-btn w-full flex items-center gap-3 text-left px-6 py-3.5 border-l-2 border-transparent text-slate-300 hover:bg-navy-900 hover:text-white transition-colors">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+        <span class="text-sm font-medium">Product &amp; Bundle Search</span>
+      </button>
+      <button onclick="showTab('quote', this)" class="nav-btn w-full flex items-center gap-3 text-left px-6 py-3.5 border-l-2 border-transparent text-slate-300 hover:bg-navy-900 hover:text-white transition-colors">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+        <span class="text-sm font-medium">Create Project Quotation</span>
+      </button>
+      <button onclick="showTab('expense', this)" class="nav-btn w-full flex items-center gap-3 text-left px-6 py-3.5 border-l-2 border-transparent text-slate-300 hover:bg-navy-900 hover:text-white transition-colors">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+        <span class="text-sm font-medium">Project Expense Tracker</span>
+      </button>
+      <button onclick="showTab('reports', this)" class="nav-btn w-full flex items-center gap-3 text-left px-6 py-3.5 border-l-2 border-transparent text-slate-300 hover:bg-navy-900 hover:text-white transition-colors">
+        <span class="nav-dot w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+        <span class="text-sm font-medium">Profitability Reports</span>
+      </button>
+    </nav>
+
+    <div class="px-6 py-5 border-t border-white/10 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-amber-500 text-navy-950 flex items-center justify-center font-display font-bold text-xs shrink-0">RS</div>
+      <div class="leading-tight">
+        <div class="text-sm font-medium">Rico Santos</div>
+        <div class="text-xs text-slate-400">Operations Admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MOBILE TOP BAR + NAV ============ -->
+  <div class="lg:hidden fixed top-0 inset-x-0 z-30 bg-navy-950 text-white">
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-full border-2 border-amber-500 flex items-center justify-center">
+          <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+        </div>
+        <span class="font-display font-semibold text-sm">CCTV Ops System</span>
+      </div>
+      <button onclick="document.getElementById('mobile-nav').classList.toggle('hidden')" class="p-2 -mr-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+    <div id="mobile-nav" class="hidden border-t border-white/10 px-2 py-2">
+      <button onclick="showTab('dashboard', this)" class="mnav-btn active block w-full text-left px-4 py-2.5 rounded text-sm text-slate-300">Dashboard Overview</button>
+      <button onclick="showTab('product', this)" class="mnav-btn block w-full text-left px-4 py-2.5 rounded text-sm text-slate-300">Product &amp; Bundle Search</button>
+      <button onclick="showTab('quote', this)" class="mnav-btn block w-full text-left px-4 py-2.5 rounded text-sm text-slate-300">Create Project Quotation</button>
+      <button onclick="showTab('expense', this)" class="mnav-btn block w-full text-left px-4 py-2.5 rounded text-sm text-slate-300">Project Expense Tracker</button>
+      <button onclick="showTab('reports', this)" class="mnav-btn block w-full text-left px-4 py-2.5 rounded text-sm text-slate-300">Profitability Reports</button>
+    </div>
+  </div>
+
+  <!-- ============ MAIN CONTENT ============ -->
+  <main class="flex-1 lg:ml-72 mt-[52px] lg:mt-0">
+
+    <!-- Desktop page header -->
+    <header class="hidden lg:flex items-center justify-between bg-white border-b border-slate-200 px-8 py-4 sticky top-0 z-20">
+      <div>
+        <div class="text-xs font-mono text-amber-600" id="page-eyebrow">ADMIN / OPERATIONS</div>
+        <h1 class="font-display text-xl font-semibold text-navy-950" id="page-title">Dashboard Overview</h1>
+      </div>
+      <div class="flex items-center gap-3 text-sm text-slate-500">
+        <span class="font-mono">Jun 30, 2026</span>
+        <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+        <span>All systems normal</span>
+      </div>
+    </header>
+
+    <div class="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-[1400px]">
+
+      <!-- ======================================================= -->
+      <!-- TAB 1: DASHBOARD OVERVIEW -->
+      <!-- ======================================================= -->
+      <section id="tab-dashboard" class="tab-panel space-y-6">
+
+        <!-- KPI stat cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium text-slate-500">Total Ongoing Projects</span>
+              <div class="w-8 h-8 rounded-lg bg-navy-950/5 flex items-center justify-center">
+                <svg class="w-4 h-4 text-navy-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+              </div>
+            </div>
+            <div class="font-display text-2xl font-semibold text-navy-950">14</div>
+            <div class="text-xs text-ok-500 mt-1.5">↑ 3 new this month</div>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium text-slate-500">Monthly Gross Revenue</span>
+              <div class="w-8 h-8 rounded-lg bg-ok-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-ok-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+              </div>
+            </div>
+            <div class="font-display text-2xl font-semibold text-navy-950">₱486,200</div>
+            <div class="text-xs text-ok-500 mt-1.5">↑ 9.8% vs last month</div>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium text-slate-500">Total Monthly Expenses</span>
+              <div class="w-8 h-8 rounded-lg bg-bad-100 flex items-center justify-center">
+                <svg class="w-4 h-4 text-bad-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l6 6 4-4 8 8"/><path d="M15 17h6v-6"/></svg>
+              </div>
+            </div>
+            <div class="font-display text-2xl font-semibold text-navy-950">₱312,450</div>
+            <div class="text-xs text-bad-500 mt-1.5">↑ 4.2% vs last month</div>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-medium text-slate-500">Net Profit Margin</span>
+              <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <svg class="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>
+              </div>
+            </div>
+            <div class="font-display text-2xl font-semibold text-navy-950">35.7%</div>
+            <div class="text-xs text-ok-500 mt-1.5">↑ 2.1pt vs last month</div>
+          </div>
+        </div>
+
+        <!-- Revenue vs expense chart + table -->
+        <div class="grid grid-cols-1 xl:grid-cols-5 gap-5">
+          <div class="xl:col-span-3 bg-white rounded-lg border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="font-display font-semibold text-navy-950">Revenue vs. Expenses per Project</h3>
+              <div class="flex items-center gap-4 text-xs text-slate-500">
+                <span class="flex items-center gap-1.5"><i class="w-2 h-2 rounded-sm bg-ok-500 inline-block"></i>Revenue</span>
+                <span class="flex items-center gap-1.5"><i class="w-2 h-2 rounded-sm bg-bad-500 inline-block"></i>Expenses</span>
+              </div>
+            </div>
+            <div class="flex items-end gap-5 h-52">
+              <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+                <div class="flex items-end gap-1 h-full w-full justify-center">
+                  <div class="w-3.5 rounded-t bg-ok-500" style="height:92%"></div>
+                  <div class="w-3.5 rounded-t bg-bad-500" style="height:58%"></div>
+                </div>
+                <span class="text-[11px] font-mono text-slate-500">#1042</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+                <div class="flex items-end gap-1 h-full w-full justify-center">
+                  <div class="w-3.5 rounded-t bg-ok-500" style="height:70%"></div>
+                  <div class="w-3.5 rounded-t bg-bad-500" style="height:30%"></div>
+                </div>
+                <span class="text-[11px] font-mono text-slate-500">#1039</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+                <div class="flex items-end gap-1 h-full w-full justify-center">
+                  <div class="w-3.5 rounded-t bg-ok-500" style="height:38%"></div>
+                  <div class="w-3.5 rounded-t bg-bad-500" style="height:33%"></div>
+                </div>
+                <span class="text-[11px] font-mono text-slate-500">#1035</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+                <div class="flex items-end gap-1 h-full w-full justify-center">
+                  <div class="w-3.5 rounded-t bg-ok-500" style="height:100%"></div>
+                  <div class="w-3.5 rounded-t bg-bad-500" style="height:44%"></div>
+                </div>
+                <span class="text-[11px] font-mono text-slate-500">#1028</span>
+              </div>
+              <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+                <div class="flex items-end gap-1 h-full w-full justify-center">
+                  <div class="w-3.5 rounded-t bg-ok-500" style="height:60%"></div>
+                  <div class="w-3.5 rounded-t bg-bad-500" style="height:52%"></div>
+                </div>
+                <span class="text-[11px] font-mono text-slate-500">#1021</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="xl:col-span-2 bg-white rounded-lg border border-slate-200 p-6">
+            <h3 class="font-display font-semibold text-navy-950 mb-4">Ongoing Project Status</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-navy-900">#1042 &middot; Reyes Residence</div>
+                  <div class="text-xs text-slate-500">Site survey done</div>
+                </div>
+                <span class="text-[11px] font-mono font-semibold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full">In Progress</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-navy-900">#1039 &middot; Meridian Retail Group</div>
+                  <div class="text-xs text-slate-500">Awaiting HDD delivery</div>
+                </div>
+                <span class="text-[11px] font-mono font-semibold text-amber-600 bg-amber-500/10 px-2.5 py-1 rounded-full">In Progress</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-navy-900">#1035 &middot; Dela Cruz Residence</div>
+                  <div class="text-xs text-slate-500">Installed, pending payment</div>
+                </div>
+                <span class="text-[11px] font-mono font-semibold text-ok-500 bg-ok-100 px-2.5 py-1 rounded-full">Completed</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-navy-900">#1028 &middot; Sunrise Warehousing</div>
+                  <div class="text-xs text-slate-500">Fully paid &amp; closed</div>
+                </div>
+                <span class="text-[11px] font-mono font-semibold text-ok-500 bg-ok-100 px-2.5 py-1 rounded-full">Completed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================= -->
+      <!-- TAB 2: PRODUCT & BUNDLE SEARCH -->
+      <!-- ======================================================= -->
+      <section id="tab-product" class="tab-panel hidden space-y-6">
+
+        <div class="bg-white rounded-lg border border-slate-200 p-6">
+          <label class="text-xs font-medium text-slate-500 mb-2 block">Search item name, model, or category</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="product-search" type="text" placeholder='Try "2MP 1080p Dome Camera" or "HDD"'
+              class="w-full pl-11 pr-4 py-3.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
+              oninput="renderProducts(this.value)">
+          </div>
+        </div>
+
+        <div id="product-results" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <p id="product-empty" class="hidden text-sm text-slate-500 text-center py-10">No items match that search. Try a different model name.</p>
+      </section>
+
+      <!-- ======================================================= -->
+      <!-- TAB 3: CREATE PROJECT QUOTATION -->
+      <!-- ======================================================= -->
+      <section id="tab-quote" class="tab-panel hidden">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+          <div class="xl:col-span-2 space-y-5">
+            <!-- Customer details -->
+            <div class="bg-white rounded-lg border border-slate-200 p-6">
+              <h3 class="font-display font-semibold text-navy-950 mb-5">Customer &amp; Site Details</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs font-medium text-slate-500 mb-1.5 block">Customer name</label>
+                  <input type="text" value="Mr. &amp; Mrs. Reyes" class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-slate-500 mb-1.5 block">Contact number</label>
+                  <input type="text" value="0917 234 5678" class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-slate-500 mb-1.5 block">Site visit date</label>
+                  <input type="date" value="2026-07-03" class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+                </div>
+                <div>
+                  <label class="text-xs font-medium text-slate-500 mb-1.5 block">Property type</label>
+                  <select class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+                    <option>Residential</option>
+                    <option>Commercial / Retail</option>
+                    <option>Warehouse / Industrial</option>
+                  </select>
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="text-xs font-medium text-slate-500 mb-1.5 block">Site address</label>
+                  <input type="text" value="Blk 4 Lot 12, Fairview, Quezon City" class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+                </div>
+              </div>
+            </div>
+
+            <!-- Item picker -->
+            <div class="bg-white rounded-lg border border-slate-200 p-6">
+              <h3 class="font-display font-semibold text-navy-950 mb-1">Item Picker</h3>
+              <p class="text-xs text-slate-500 mb-5">Tick items and set quantity. Totals update automatically on the right.</p>
+              <div id="quote-items" class="divide-y divide-slate-100"></div>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="xl:col-span-1">
+            <div class="bg-navy-950 rounded-lg p-6 text-white xl:sticky xl:top-24">
+              <h4 class="font-mono text-xs text-slate-300 tracking-wide mb-5">QUOTATION SUMMARY</h4>
+
+              <div id="quote-lines" class="space-y-2.5 mb-4 min-h-[40px]">
+                <p class="text-xs text-slate-500">No items selected yet.</p>
+              </div>
+
+              <div class="border-t border-white/10 pt-4 space-y-2.5 text-sm">
+                <div class="flex justify-between text-slate-300"><span>Subtotal</span><span id="q-subtotal" class="font-mono text-white">₱0</span></div>
+                <div class="flex justify-between items-center text-slate-300">
+                  <span>Discount (%)</span>
+                  <input id="q-discount" type="number" value="0" min="0" max="100" oninput="renderQuoteSummary()" class="w-16 bg-navy-800 border border-navy-700 rounded px-2 py-1 text-right text-xs font-mono text-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+                <div class="flex justify-between items-center text-slate-300">
+                  <span>VAT / Tax (%)</span>
+                  <input id="q-tax" type="number" value="12" min="0" max="100" oninput="renderQuoteSummary()" class="w-16 bg-navy-800 border border-navy-700 rounded px-2 py-1 text-right text-xs font-mono text-white focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+              </div>
+
+              <div class="border-t border-white/10 mt-4 pt-4 flex justify-between items-baseline">
+                <span class="text-sm text-slate-300">Total Project Quoted Price</span>
+                <span id="q-total" class="font-display text-2xl font-semibold text-amber-500">₱0</span>
+              </div>
+
+              <button onclick="window.print()" class="w-full mt-6 bg-amber-500 hover:bg-amber-600 text-navy-950 font-semibold text-sm py-3.5 rounded-md transition-colors">
+                Generate &amp; Print Official Quote
+              </button>
+              <p class="text-[11px] text-slate-500 mt-3">Quote reference auto-assigned on save. Valid for 14 days from issue date.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================= -->
+      <!-- TAB 4: PROJECT EXPENSE TRACKER -->
+      <!-- ======================================================= -->
+      <section id="tab-expense" class="tab-panel hidden space-y-5">
+
+        <div class="bg-white rounded-lg border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+          <div>
+            <label class="text-xs font-medium text-slate-500 mb-1.5 block">Viewing project</label>
+            <select id="project-select" onchange="switchProject(this.value)" class="px-3.5 py-2.5 rounded-md border border-slate-200 text-sm font-medium text-navy-950 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 min-w-[280px]">
+              <option value="1042">Project #1042 — Reyes Residence</option>
+              <option value="1039">Project #1039 — Meridian Retail Group</option>
+              <option value="1035">Project #1035 — Dela Cruz Residence</option>
+            </select>
+          </div>
+          <span id="project-status" class="text-xs font-mono font-semibold text-amber-600 bg-amber-500/10 px-3 py-1.5 rounded-full self-start sm:self-auto">In Progress</span>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+          <!-- Expense input form -->
+          <div class="xl:col-span-2 bg-white rounded-lg border border-slate-200 p-6">
+            <h3 class="font-display font-semibold text-navy-950 mb-5">Add Project Expense</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+              <div class="sm:col-span-1">
+                <label class="text-xs font-medium text-slate-500 mb-1.5 block">Category</label>
+                <select id="exp-category" class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+                  <option>Gasoline / Transportation</option>
+                  <option>Installer Labor Fee</option>
+                  <option>Extra Wires / Materials</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-medium text-slate-500 mb-1.5 block">Description</label>
+                <input id="exp-desc" type="text" placeholder="e.g. Round trip to site" class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+              </div>
+              <div>
+                <label class="text-xs font-medium text-slate-500 mb-1.5 block">Amount (₱)</label>
+                <input id="exp-amount" type="number" min="0" placeholder="0.00" class="w-full px-3.5 py-2.5 rounded-md border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+              </div>
+            </div>
+            <button onclick="addExpense()" class="bg-navy-950 hover:bg-navy-800 text-white text-sm font-semibold px-5 py-2.5 rounded-md transition-colors">+ Add Expense</button>
+
+            <div class="mt-7">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="text-left text-xs font-mono uppercase tracking-wide text-slate-400 border-b border-slate-200">
+                    <th class="pb-3 font-medium">Category</th>
+                    <th class="pb-3 font-medium">Description</th>
+                    <th class="pb-3 font-medium text-right">Amount</th>
+                    <th class="pb-3 font-medium w-10"></th>
+                  </tr>
+                </thead>
+                <tbody id="expense-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Financial summary -->
+          <div class="xl:col-span-1">
+            <div class="bg-white rounded-lg border border-slate-200 p-6 xl:sticky xl:top-24">
+              <h3 class="font-display font-semibold text-navy-950 mb-5">Real-Time Financial Summary</h3>
+              <div class="space-y-4">
+                <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                  <span class="text-sm text-slate-500">Total Contract Price (Sales)</span>
+                  <span id="fin-contract" class="font-mono font-semibold text-navy-950">₱0</span>
+                </div>
+                <div class="flex justify-between items-center pb-4 border-b border-slate-100">
+                  <span class="text-sm text-slate-500">Total Material &amp; Op. Costs</span>
+                  <span id="fin-expenses" class="font-mono font-semibold text-bad-500">₱0</span>
+                </div>
+              </div>
+              <div id="fin-net-box" class="mt-5 rounded-lg bg-ok-100 p-5 text-center">
+                <div class="text-xs font-mono uppercase tracking-wide text-ok-500 mb-1.5">Net Income / Profit</div>
+                <div id="fin-net" class="font-display text-3xl font-bold text-ok-500">₱0</div>
+                <div id="fin-margin" class="text-xs text-ok-500/80 mt-1.5">0% margin</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================= -->
+      <!-- TAB 5: PROFITABILITY REPORTS -->
+      <!-- ======================================================= -->
+      <section id="tab-reports" class="tab-panel hidden space-y-5">
+
+        <div class="bg-white rounded-lg border border-slate-200 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-display font-semibold text-navy-950">Net Profit by Project</h3>
+            <div class="flex items-center gap-4 text-xs text-slate-500">
+              <span class="flex items-center gap-1.5"><i class="w-2 h-2 rounded-sm bg-amber-500 inline-block"></i>Net Profit</span>
+            </div>
+          </div>
+          <div class="flex items-end gap-6 h-48">
+            <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+              <div class="w-8 rounded-t bg-amber-500" style="height:60%"></div>
+              <span class="text-[11px] font-mono text-slate-500 text-center">#1042<br>Reyes Res.</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+              <div class="w-8 rounded-t bg-amber-500" style="height:84%"></div>
+              <span class="text-[11px] font-mono text-slate-500 text-center">#1039<br>Meridian</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+              <div class="w-8 rounded-t bg-amber-500" style="height:20%"></div>
+              <span class="text-[11px] font-mono text-slate-500 text-center">#1035<br>Dela Cruz</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+              <div class="w-8 rounded-t bg-amber-500" style="height:100%"></div>
+              <span class="text-[11px] font-mono text-slate-500 text-center">#1028<br>Sunrise</span>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+              <div class="w-8 rounded-t bg-amber-500" style="height:34%"></div>
+              <span class="text-[11px] font-mono text-slate-500 text-center">#1021<br>Villar Bldg.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-slate-200 p-6 overflow-x-auto">
+          <h3 class="font-display font-semibold text-navy-950 mb-5">Profitability Breakdown</h3>
+          <table class="w-full text-sm min-w-[640px]">
+            <thead>
+              <tr class="text-left text-xs font-mono uppercase tracking-wide text-slate-400 border-b border-slate-200">
+                <th class="pb-3 font-medium">Project</th>
+                <th class="pb-3 font-medium text-right">Contract Price</th>
+                <th class="pb-3 font-medium text-right">Total Cost</th>
+                <th class="pb-3 font-medium text-right">Net Profit</th>
+                <th class="pb-3 font-medium text-right">Margin</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr>
+                <td class="py-3.5 font-medium text-navy-950">#1042 &middot; Reyes Residence</td>
+                <td class="py-3.5 text-right font-mono">₱35,600</td>
+                <td class="py-3.5 text-right font-mono text-bad-500">₱14,300</td>
+                <td class="py-3.5 text-right font-mono text-ok-500 font-semibold">₱21,300</td>
+                <td class="py-3.5 text-right font-mono">59.8%</td>
+              </tr>
+              <tr>
+                <td class="py-3.5 font-medium text-navy-950">#1039 &middot; Meridian Retail Group</td>
+                <td class="py-3.5 text-right font-mono">₱128,000</td>
+                <td class="py-3.5 text-right font-mono text-bad-500">₱38,900</td>
+                <td class="py-3.5 text-right font-mono text-ok-500 font-semibold">₱89,100</td>
+                <td class="py-3.5 text-right font-mono">69.6%</td>
+              </tr>
+              <tr>
+                <td class="py-3.5 font-medium text-navy-950">#1035 &middot; Dela Cruz Residence</td>
+                <td class="py-3.5 text-right font-mono">₱14,300</td>
+                <td class="py-3.5 text-right font-mono text-bad-500">₱9,800</td>
+                <td class="py-3.5 text-right font-mono text-ok-500 font-semibold">₱4,500</td>
+                <td class="py-3.5 text-right font-mono">31.5%</td>
+              </tr>
+              <tr>
+                <td class="py-3.5 font-medium text-navy-950">#1028 &middot; Sunrise Warehousing</td>
+                <td class="py-3.5 text-right font-mono">₱96,400</td>
+                <td class="py-3.5 text-right font-mono text-bad-500">₱21,200</td>
+                <td class="py-3.5 text-right font-mono text-ok-500 font-semibold">₱75,200</td>
+                <td class="py-3.5 text-right font-mono">78.0%</td>
+              </tr>
+              <tr>
+                <td class="py-3.5 font-medium text-navy-950">#1021 &middot; Villar Building</td>
+                <td class="py-3.5 text-right font-mono">₱52,800</td>
+                <td class="py-3.5 text-right font-mono text-bad-500">₱34,600</td>
+                <td class="py-3.5 text-right font-mono text-ok-500 font-semibold">₱18,200</td>
+                <td class="py-3.5 text-right font-mono">34.5%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  /* ============ TAB SWITCHING ============ */
+  const titles = {
+    dashboard: ['ADMIN / OPERATIONS', 'Dashboard Overview'],
+    product:   ['ADMIN / CATALOG', 'Product & Bundle Search'],
+    quote:     ['ADMIN / SALES', 'Create Project Quotation'],
+    expense:   ['ADMIN / PROJECT FINANCE', 'Project Expense Tracker'],
+    reports:   ['ADMIN / FINANCE', 'Profitability Reports'],
+  };
+
+  function showTab(id, btn){
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById('tab-' + id).classList.remove('hidden');
+
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.mnav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll(`[onclick*="showTab('${id}'"]`).forEach(b => b.classList.add('active'));
+
+    document.getElementById('page-eyebrow').textContent = titles[id][0];
+    document.getElementById('page-title').textContent = titles[id][1];
+
+    document.getElementById('mobile-nav').classList.add('hidden');
+    window.scrollTo(0,0);
+  }
+
+  /* ============ PRODUCT & BUNDLE SEARCH ============ */
+  const products = [
+    { name:"2MP 1080p Dome Camera", specs:"1080p Full HD · Indoor · 20m night vision · Plastic housing", cost:1450, price:2450, stock:38, badge:true, badgeText:"Suggest Upgrade → 4MP" },
+    { name:"4MP QHD Bullet Camera", specs:"2560×1440 QHD · Outdoor IP66 · 30m IR · Metal housing", cost:2380, price:3980, stock:22, badge:false },
+    { name:"5MP PTZ Camera", specs:"2592×1944 · 360° pan-tilt · 10x optical zoom · Outdoor", cost:4600, price:7200, stock:9, badge:true, badgeText:"Suggest Bundle → 8-ch Kit" },
+    { name:"8-Channel NVR (No HDD)", specs:"8-channel · H.265+ compression · HDMI/VGA out · 2 HDD bays", cost:2800, price:4500, stock:15, badge:false },
+    { name:"2TB Surveillance HDD", specs:"3.5\" SATA · 24/7 rated · 64MB cache · Built for CCTV", cost:2900, price:4200, stock:27, badge:false },
+    { name:"100m CAT5e Cable Roll", specs:"Outdoor-rated · UV resistant · sold per 100m from 305m roll", cost:850, price:1400, stock:60, badge:false },
+  ];
+
+  function productCard(p){
+    const stockColor = p.stock < 10 ? 'text-bad-500' : p.stock < 25 ? 'text-amber-600' : 'text-ok-500';
+    return `
+    <div class="bg-white rounded-lg border border-slate-200 p-5 relative">
+      ${p.badge ? `<span class="absolute -top-2.5 left-5 bg-amber-500 text-navy-950 text-[10.5px] font-mono font-bold px-2.5 py-1 rounded-full">${p.badgeText}</span>` : ''}
+      <h4 class="font-display font-semibold text-navy-950 text-[15px] mb-1.5 mt-1">${p.name}</h4>
+      <p class="text-xs text-slate-500 mb-4 leading-relaxed">${p.specs}</p>
+      <div class="grid grid-cols-3 gap-3 text-center border-t border-slate-100 pt-4">
+        <div>
+          <div class="text-[10.5px] text-slate-400 font-mono uppercase mb-1">Unit Cost</div>
+          <div class="text-sm font-mono font-semibold text-navy-900">₱${p.cost.toLocaleString()}</div>
+        </div>
+        <div>
+          <div class="text-[10.5px] text-slate-400 font-mono uppercase mb-1">Selling Price</div>
+          <div class="text-sm font-mono font-semibold text-navy-950">₱${p.price.toLocaleString()}</div>
+        </div>
+        <div>
+          <div class="text-[10.5px] text-slate-400 font-mono uppercase mb-1">Stock</div>
+          <div class="text-sm font-mono font-semibold ${stockColor}">${p.stock} pcs</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderProducts(query){
+    query = (query || '').toLowerCase().trim();
+    const matches = products.filter(p => p.name.toLowerCase().includes(query) || p.specs.toLowerCase().includes(query));
+    const wrap = document.getElementById('product-results');
+    const empty = document.getElementById('product-empty');
+    if(matches.length === 0){
+      wrap.innerHTML = '';
+      empty.classList.remove('hidden');
+    } else {
+      empty.classList.add('hidden');
+      wrap.innerHTML = matches.map(productCard).join('');
+    }
+  }
+  renderProducts('');
+
+  /* ============ QUOTATION BUILDER ============ */
+  const quoteCatalog = [
+    { id:'cam2mp', name:'2MP 1080p Dome Camera', price:2450, group:'Cameras' },
+    { id:'cam4mp', name:'4MP QHD Bullet Camera', price:3980, group:'Cameras' },
+    { id:'camptz', name:'5MP PTZ Camera', price:7200, group:'Cameras' },
+    { id:'nvr8', name:'8-Channel NVR (No HDD)', price:4500, group:'DVR / NVR' },
+    { id:'hdd2tb', name:'2TB Surveillance HDD', price:4200, group:'Storage' },
+    { id:'cable100', name:'100m CAT5e Cable Roll', price:1400, group:'Wiring & Materials' },
+    { id:'labor', name:'Standard Installation Labor', price:3500, group:'Wiring & Materials' },
+  ];
+
+  function buildItemPicker(){
+    const groups = {};
+    quoteCatalog.forEach(it => { (groups[it.group] ||= []).push(it); });
+    let html = '';
+    Object.keys(groups).forEach(g => {
+      html += `<div class="pt-4 first:pt-0 pb-1"><div class="text-xs font-mono uppercase tracking-wide text-slate-400 mb-2">${g}</div></div>`;
+      groups[g].forEach(it => {
+        html += `
+        <div class="flex items-center justify-between gap-4 py-3">
+          <label class="flex items-center gap-3 flex-1 cursor-pointer">
+            <input type="checkbox" id="chk-${it.id}" onchange="renderQuoteSummary()" class="w-4 h-4 rounded border-slate-300">
+            <div>
+              <div class="text-sm font-medium text-navy-900">${it.name}</div>
+              <div class="text-xs text-slate-400 font-mono">₱${it.price.toLocaleString()} / unit</div>
+            </div>
+          </label>
+          <input type="number" id="qty-${it.id}" value="1" min="1" oninput="renderQuoteSummary()" class="w-16 px-2 py-1.5 rounded-md border border-slate-200 text-sm text-center focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500">
+        </div>`;
+      });
+    });
+    document.getElementById('quote-items').innerHTML = html;
+  }
+  buildItemPicker();
+
+  function fmt(n){ return '₱' + Math.round(n).toLocaleString('en-PH'); }
+
+  function renderQuoteSummary(){
+    let subtotal = 0;
+    let linesHtml = '';
+    quoteCatalog.forEach(it => {
+      const chk = document.getElementById('chk-' + it.id);
+      if(chk && chk.checked){
+        const qty = Math.max(1, parseInt(document.getElementById('qty-' + it.id).value || '1', 10));
+        const lineTotal = qty * it.price;
+        subtotal += lineTotal;
+        linesHtml += `<div class="flex justify-between text-xs"><span class="text-slate-300">${it.name} × ${qty}</span><span class="font-mono text-white">${fmt(lineTotal)}</span></div>`;
+      }
+    });
+
+    document.getElementById('quote-lines').innerHTML = linesHtml || '<p class="text-xs text-slate-500">No items selected yet.</p>';
+
+    const discountPct = parseFloat(document.getElementById('q-discount').value || '0');
+    const taxPct = parseFloat(document.getElementById('q-tax').value || '0');
+    const afterDiscount = subtotal - (subtotal * discountPct / 100);
+    const total = afterDiscount + (afterDiscount * taxPct / 100);
+
+    document.getElementById('q-subtotal').textContent = fmt(subtotal);
+    document.getElementById('q-total').textContent = fmt(total);
+  }
+  renderQuoteSummary();
+
+  /* ============ EXPENSE TRACKER ============ */
+  const projects = {
+    '1042': { name:'Reyes Residence', contract:35600, status:'In Progress',
+      expenses:[
+        {category:'Gasoline / Transportation', desc:'Round trip to site (2x)', amount:850},
+        {category:'Installer Labor Fee', desc:'2-man crew, 1-day install', amount:8000},
+        {category:'Extra Wires / Materials', desc:'Additional 30m cable + clips', amount:1200},
+      ]},
+    '1039': { name:'Meridian Retail Group', contract:128000, status:'In Progress',
+      expenses:[
+        {category:'Installer Labor Fee', desc:'3-man crew, 3-day install', amount:27000},
+        {category:'Gasoline / Transportation', desc:'Fuel + toll, multiple trips', amount:2400},
+        {category:'Extra Wires / Materials', desc:'Conduit + junction boxes', amount:5600},
+        {category:'Other', desc:'Permit processing fee', amount:3900},
+      ]},
+    '1035': { name:'Dela Cruz Residence', contract:14300, status:'Completed',
+      expenses:[
+        {category:'Installer Labor Fee', desc:'1-man crew, half-day install', amount:3500},
+        {category:'Gasoline / Transportation', desc:'Single trip to site', amount:600},
+        {category:'Extra Wires / Materials', desc:'Wall mounts + screws', amount:400},
+      ]},
+  };
+  let currentProjectId = '1042';
+
+  function switchProject(id){
+    currentProjectId = id;
+    const p = projects[id];
+    document.getElementById('project-status').textContent = p.status;
+    document.getElementById('project-status').className = 'text-xs font-mono font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto ' +
+      (p.status === 'Completed' ? 'text-ok-500 bg-ok-100' : 'text-amber-600 bg-amber-500/10');
+    renderExpenses();
+  }
+
+  function addExpense(){
+    const category = document.getElementById('exp-category').value;
+    const desc = document.getElementById('exp-desc').value.trim() || '—';
+    const amount = parseFloat(document.getElementById('exp-amount').value);
+    if(!amount || amount <= 0){ return; }
+    projects[currentProjectId].expenses.push({category, desc, amount});
+    document.getElementById('exp-desc').value = '';
+    document.getElementById('exp-amount').value = '';
+    renderExpenses();
+  }
+
+  function removeExpense(index){
+    projects[currentProjectId].expenses.splice(index, 1);
+    renderExpenses();
+  }
+
+  function renderExpenses(){
+    const p = projects[currentProjectId];
+    const body = document.getElementById('expense-table-body');
+    if(p.expenses.length === 0){
+      body.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-sm text-slate-400">No expenses logged yet for this project.</td></tr>`;
+    } else {
+      body.innerHTML = p.expenses.map((e, i) => `
+        <tr class="border-b border-slate-50">
+          <td class="py-3 text-sm text-navy-900">${e.category}</td>
+          <td class="py-3 text-sm text-slate-500">${e.desc}</td>
+          <td class="py-3 text-sm font-mono text-right text-bad-500">₱${e.amount.toLocaleString()}</td>
+          <td class="py-3 text-right">
+            <button onclick="removeExpense(${i})" class="text-slate-300 hover:text-bad-500 transition-colors" title="Remove">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </td>
+        </tr>`).join('');
+    }
+
+    const totalExpenses = p.expenses.reduce((sum, e) => sum + e.amount, 0);
+    const net = p.contract - totalExpenses;
+    const margin = p.contract > 0 ? (net / p.contract * 100) : 0;
+
+    document.getElementById('fin-contract').textContent = fmt(p.contract);
+    document.getElementById('fin-expenses').textContent = fmt(totalExpenses);
+    document.getElementById('fin-net').textContent = fmt(net);
+    document.getElementById('fin-margin').textContent = margin.toFixed(1) + '% margin';
+
+    const netBox = document.getElementById('fin-net-box');
+    const netLabel = netBox.querySelector('.font-mono');
+    const netValue = document.getElementById('fin-net');
+    const netMargin = document.getElementById('fin-margin');
+    if(net >= 0){
+      netBox.className = 'mt-5 rounded-lg bg-ok-100 p-5 text-center';
+      netLabel.className = 'text-xs font-mono uppercase tracking-wide text-ok-500 mb-1.5';
+      netValue.className = 'font-display text-3xl font-bold text-ok-500';
+      netMargin.className = 'text-xs text-ok-500/80 mt-1.5';
+    } else {
+      netBox.className = 'mt-5 rounded-lg bg-bad-100 p-5 text-center';
+      netLabel.className = 'text-xs font-mono uppercase tracking-wide text-bad-500 mb-1.5';
+      netValue.className = 'font-display text-3xl font-bold text-bad-500';
+      netMargin.className = 'text-xs text-bad-500/80 mt-1.5';
+    }
+  }
+  renderExpenses();
+</script>
+
+</body>
+</html>
